@@ -19,25 +19,33 @@ def listar_produtos():
     conn.close()
     return rows
 
-def registrar_compra(compra: Compra):
+def registrar_compra(produto_id, data_compra, valor, mercado, validade):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO compras (produto_id, data_compra, mercado, valor, quantidade) 
-        VALUES (?, ?, ?, ?, ?)
-    ''', (compra.produto_id, compra.data_compra, compra.mercado, compra.valor, compra.quantidade))
+        INSERT INTO compras (produto_id, data_compra, valor, mercado)
+        VALUES (?, ?, ?, ?)
+    ''', (produto_id, data_compra, valor, mercado))
+    conn.commit()
+
+    # Atualiza a validade no produto
+    cursor.execute('''
+        UPDATE produtos SET validade = ? WHERE id = ?
+    ''', (validade, produto_id))
+
     conn.commit()
     conn.close()
 
-def registrar_uso(uso: Uso):
+def registrar_uso(produto_id, data_lancamento, data_uso, quantidade):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO usos (produto_id, data_uso, quantidade) 
+        INSERT INTO usos (produto_id, data_uso, quantidade)
         VALUES (?, ?, ?)
-    ''', (uso.produto_id, uso.data_uso, uso.quantidade))
+    ''', (produto_id, data_uso, quantidade))
     conn.commit()
     conn.close()
+
 
 def calcular_estoque_atual():
     conn = get_connection()

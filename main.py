@@ -21,20 +21,15 @@ if menu == 'Adicionar Produto':
     st.header('Adicionar Produto')
     nome = st.text_input('Nome do produto')
 
-    # Pega categorias já cadastradas
     categorias_existentes = listar_categorias()
-
-    # Cria lista de opções, adicionando um marcador especial "__nova__"
     opcoes = categorias_existentes + ['__nova__']
 
-    # Exibe selectbox com formatação especial
     categoria_escolhida = st.selectbox(
         'Categoria',
         options=opcoes,
         format_func=lambda x: '➕ Criar nova categoria' if x == '__nova__' else x
     )
 
-    # Se escolheu criar nova
     if categoria_escolhida == '__nova__':
         nova_categoria = st.text_input('Digite o nome da nova categoria')
         if nova_categoria:
@@ -45,51 +40,57 @@ if menu == 'Adicionar Produto':
     else:
         categoria_final = categoria_escolhida
 
-    validade = st.date_input('Data de validade', value=datetime.date.today())
-
     if st.button('Salvar Produto'):
-        if categoria_final:
-            produto = Produto(nome=nome, categoria=categoria_final, validade=validade)
+        if nome and categoria_final:
+            produto = Produto(nome=nome, categoria=categoria_final)
             adicionar_produto(produto)
             st.success('Produto adicionado com sucesso!')
         else:
-            st.error('Por favor, defina a categoria corretamente!')
+            st.error('Por favor, preencha o nome e a categoria!')
+
 
 elif menu == 'Registrar Compra':
     st.header('Registrar Compra')
-    produtos = listar_produtos()
-    if produtos:
-        produto_dict = {f"{p[1]} (ID {p[0]})": p[0] for p in produtos}
-        produto_escolhido = st.selectbox('Produto', list(produto_dict.keys()))
-        
-        data_compra = st.date_input('Data da compra', value=datetime.date.today())
-        mercado = st.text_input('Mercado')
-        valor = st.number_input('Valor da compra (total)', min_value=0.0, format="%.2f")
-        quantidade = st.number_input('Quantidade comprada', min_value=1, step=1)
 
-        if st.button('Registrar Compra'):
-            compra = Compra(produto_id=produto_dict[produto_escolhido], data_compra=data_compra, mercado=mercado, valor=valor, quantidade=quantidade)
-            registrar_compra(compra)
-            st.success('Compra registrada!')
-    else:
-        st.warning('Nenhum produto cadastrado ainda.')
+    produtos = listar_produtos()
+    produto_nomes = [produto.nome for produto in produtos]
+
+    produto_selecionado = st.selectbox('Produto', produto_nomes)
+
+    data_compra = st.date_input('Data da compra', value=datetime.date.today())
+    valor = st.number_input('Valor da compra', min_value=0.0, step=0.01, format="%.2f")
+    mercado = st.text_input('Mercado onde comprou')
+    validade = st.date_input('Data de validade do produto')
+
+    if st.button('Salvar Compra'):
+        produto_obj = next((p for p in produtos if p.nome == produto_selecionado), None)
+        if produto_obj:
+            registrar_compra(produto_id=produto_obj.id, data_compra=data_compra, valor=valor, mercado=mercado, validade=validade)
+            st.success('Compra registrada com sucesso!')
+        else:
+            st.error('Produto não encontrado!')
+
 
 elif menu == 'Registrar Uso':
     st.header('Registrar Uso')
-    produtos = listar_produtos()
-    if produtos:
-        produto_dict = {f"{p[1]} (ID {p[0]})": p[0] for p in produtos}
-        produto_escolhido = st.selectbox('Produto', list(produto_dict.keys()))
-        
-        data_uso = st.date_input('Data do uso', value=datetime.date.today())
-        quantidade = st.number_input('Quantidade usada', min_value=1, step=1)
 
-        if st.button('Registrar Uso'):
-            uso = Uso(produto_id=produto_dict[produto_escolhido], data_uso=data_uso, quantidade=quantidade)
-            registrar_uso(uso)
-            st.success('Uso registrado!')
-    else:
-        st.warning('Nenhum produto cadastrado ainda.')
+    produtos = listar_produtos()
+    produto_nomes = [produto.nome for produto in produtos]
+
+    produto_selecionado = st.selectbox('Produto', produto_nomes)
+
+    data_lancamento = st.date_input('Data de lançamento', value=datetime.date.today())
+    data_uso = st.date_input('Data de uso', value=datetime.date.today())
+    quantidade = st.number_input('Quantidade utilizada', min_value=0.0, step=0.1)
+
+    if st.button('Salvar Uso'):
+        produto_obj = next((p for p in produtos if p.nome == produto_selecionado), None)
+        if produto_obj:
+            registrar_uso(produto_id=produto_obj.id, data_lancamento=data_lancamento, data_uso=data_uso, quantidade=quantidade)
+            st.success('Uso registrado com sucesso!')
+        else:
+            st.error('Produto não encontrado!')
+
 
 elif menu == 'Listar Produtos':
     st.header('Produtos Cadastrados')
