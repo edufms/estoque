@@ -1,6 +1,6 @@
 import streamlit as st
 from database.db import create_tables
-from api.controllers import adicionar_produto, listar_produtos, registrar_compra, registrar_uso, calcular_estoque_atual
+from api.controllers import adicionar_produto, listar_produtos, registrar_compra, registrar_uso, calcular_estoque_atual, listar_categorias, adicionar_categoria
 from api.models import Produto, Compra, Uso
 import datetime
 
