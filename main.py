@@ -20,13 +20,27 @@ menu = st.sidebar.selectbox('Menu', [
 if menu == 'Adicionar Produto':
     st.header('Adicionar Produto')
     nome = st.text_input('Nome do produto')
-    categoria = st.text_input('Categoria')
+
+    categorias_existentes = listar_categorias()
+    categoria = st.selectbox(
+        'Categoria',
+        categorias_existentes + ['➕ Criar nova categoria'],
+        index=0 if categorias_existentes else len(categorias_existentes)
+    )
+
+    if categoria == '➕ Criar nova categoria':
+        nova_categoria = st.text_input('Nova Categoria')
+        if nova_categoria:
+            adicionar_categoria(nova_categoria)
+            categoria = nova_categoria  # usa nova categoria
+
     validade = st.date_input('Data de validade', value=datetime.date.today())
 
     if st.button('Salvar Produto'):
         produto = Produto(nome=nome, categoria=categoria, validade=validade)
         adicionar_produto(produto)
         st.success('Produto adicionado com sucesso!')
+
 
 elif menu == 'Registrar Compra':
     st.header('Registrar Compra')

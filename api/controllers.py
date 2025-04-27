@@ -61,3 +61,21 @@ def calcular_estoque_atual():
     rows = cursor.fetchall()
     conn.close()
     return rows
+
+def listar_categorias():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT nome FROM categorias')
+    categorias = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    return categorias
+
+def adicionar_categoria(nome_categoria):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('INSERT INTO categorias (nome) VALUES (?)', (nome_categoria,))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        pass  # se já existir, ignora
+    conn.close()
