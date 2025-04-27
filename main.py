@@ -1,6 +1,6 @@
 import streamlit as st
 from database.db import create_tables
-from api.controllers import adicionar_produto, listar_produtos, registrar_compra, registrar_uso
+from api.controllers import adicionar_produto, listar_produtos, registrar_compra, registrar_uso, calcular_estoque_atual
 from api.models import Produto, Compra, Uso
 import datetime
 
@@ -9,7 +9,13 @@ create_tables()
 
 st.title('🛒 Controle de Estoque Doméstico')
 
-menu = st.sidebar.selectbox('Menu', ['Adicionar Produto', 'Registrar Compra', 'Registrar Uso', 'Listar Produtos'])
+menu = st.sidebar.selectbox('Menu', [
+    'Adicionar Produto', 
+    'Registrar Compra', 
+    'Registrar Uso', 
+    'Listar Produtos',
+    '📦 Estoque Atual'
+])
 
 if menu == 'Adicionar Produto':
     st.header('Adicionar Produto')
@@ -66,3 +72,29 @@ elif menu == 'Listar Produtos':
             st.write(f"**Nome:** {p[1]} | **Categoria:** {p[2]} | **Validade:** {p[3]}")
     else:
         st.info('Nenhum produto cadastrado.')
+
+elif menu == '📦 Estoque Atual':
+    st.header('📦 Estoque Atual')
+    estoque = calcular_estoque_atual()
+
+    if estoque:
+        for item in estoque:
+            produto_id, nome, categoria, validade, comprado, usado, atual = item
+            validade_dt = datetime.datetime.strptime(validade, '%Y-%m-%d').date() if validade else None
+            dias_restantes = (validade_dt - datetime.date.today()).days if validade_dt else None
+
+            st.subheader(f"🔹 {nome}")
+            st.write(f"**Categoria:** {categoria}")
+            st.write(f"**Quantidade em estoque:** {atual}")
+
+            if validade_dt:
+                if dias_restantes < 0:
+                    st.error(f"VENCIDO há {-dias_restantes} dias! ⚠️")
+                elif dias_restantes <= 7:
+                    st.warning(f"Vence em {dias_restantes} dias! ⚠️")
+                else:
+                    st.info(f"Validade: {validade_dt}")
+            else:
+                st.info("Sem data de validade.")
+    else:
+        st.info('Nenhum produto cadastrado ou movimentado ainda.')

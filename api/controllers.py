@@ -38,3 +38,26 @@ def registrar_uso(uso: Uso):
     ''', (uso.produto_id, uso.data_uso, uso.quantidade))
     conn.commit()
     conn.close()
+
+def calcular_estoque_atual():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+    SELECT 
+        p.id, 
+        p.nome, 
+        p.categoria,
+        p.validade,
+        IFNULL(SUM(c.quantidade), 0) as total_comprado,
+        IFNULL(SUM(u.quantidade), 0) as total_usado,
+        (IFNULL(SUM(c.quantidade), 0) - IFNULL(SUM(u.quantidade), 0)) as estoque_atual
+    FROM produtos p
+    LEFT JOIN compras c ON p.id = c.produto_id
+    LEFT JOIN usos u ON p.id = u.produto_id
+    GROUP BY p.id
+    ''')
+
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
