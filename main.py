@@ -21,26 +21,39 @@ if menu == 'Adicionar Produto':
     st.header('Adicionar Produto')
     nome = st.text_input('Nome do produto')
 
+    # Pega categorias já cadastradas
     categorias_existentes = listar_categorias()
-    categoria = st.selectbox(
+
+    # Cria lista de opções, adicionando um marcador especial "__nova__"
+    opcoes = categorias_existentes + ['__nova__']
+
+    # Exibe selectbox com formatação especial
+    categoria_escolhida = st.selectbox(
         'Categoria',
-        categorias_existentes + ['➕ Criar nova categoria'],
-        index=0 if categorias_existentes else len(categorias_existentes)
+        options=opcoes,
+        format_func=lambda x: '➕ Criar nova categoria' if x == '__nova__' else x
     )
 
-    if categoria == '➕ Criar nova categoria':
-        nova_categoria = st.text_input('Nova Categoria')
+    # Se escolheu criar nova
+    if categoria_escolhida == '__nova__':
+        nova_categoria = st.text_input('Digite o nome da nova categoria')
         if nova_categoria:
             adicionar_categoria(nova_categoria)
-            categoria = nova_categoria  # usa nova categoria
+            categoria_final = nova_categoria
+        else:
+            categoria_final = None
+    else:
+        categoria_final = categoria_escolhida
 
     validade = st.date_input('Data de validade', value=datetime.date.today())
 
     if st.button('Salvar Produto'):
-        produto = Produto(nome=nome, categoria=categoria, validade=validade)
-        adicionar_produto(produto)
-        st.success('Produto adicionado com sucesso!')
-
+        if categoria_final:
+            produto = Produto(nome=nome, categoria=categoria_final, validade=validade)
+            adicionar_produto(produto)
+            st.success('Produto adicionado com sucesso!')
+        else:
+            st.error('Por favor, defina a categoria corretamente!')
 
 elif menu == 'Registrar Compra':
     st.header('Registrar Compra')

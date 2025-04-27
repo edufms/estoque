@@ -48,6 +48,14 @@ def create_tables():
         nome TEXT UNIQUE NOT NULL
     )
     ''')
+    
+    # Inserir categorias padrão
+    categorias_padrao = ['Alimentos', 'Bebidas', 'Limpeza', 'Higiene', 'Pet', 'Medicamentos', 'Outros']
+    for categoria in categorias_padrao:
+        try:
+            cursor.execute('INSERT INTO categorias (nome) VALUES (?)', (categoria,))
+        except sqlite3.IntegrityError:
+            pass  # Ignora se já existir
 
 
     conn.commit()
