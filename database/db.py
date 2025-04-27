@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path('data/estoque.db')
+DB_PATH = Path('estoque.db')  # muda para criar na raiz
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
