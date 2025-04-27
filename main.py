@@ -61,7 +61,7 @@ elif menu == 'Registrar Compra':
     valor = st.number_input('Valor da compra', min_value=0.0, step=0.01, format="%.2f")
     mercado = st.text_input('Mercado onde comprou')
     validade = st.date_input('Data de validade do produto')
-
+ 
     if st.button('Salvar Compra'):
         produto_obj = next((p for p in produtos if p.nome == produto_selecionado), None)
         if produto_obj:
