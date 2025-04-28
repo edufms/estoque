@@ -3,10 +3,11 @@ from typing import Optional
 from datetime import date
 
 class Produto(BaseModel):
-    id: Optional[int]
-    nome: str
-    categoria: str
-    validade: Optional[date]
+    def __init__(self, id=None, nome=None, categoria=None, validade=None):
+        self.id = id
+        self.nome = nome
+        self.categoria = categoria
+        self.validade = validade
 
 class Compra(BaseModel):
     id: Optional[int]
